@@ -29,88 +29,69 @@
     </div>
 
     <script>
-        function getCounterValue(counterId) {
-            return fetch(`https://api.github.com/repos/anas-aldolimi/SwearCounter/issues/${counterId}`, {
-                headers: {
-                    Accept: "application/vnd.github.v3+json"
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error("Error: " + response.status);
-                }
-            })
-            .then(data => {
-                return parseInt(data.comments); // Parse the counter value as an integer
-            })
-            .catch(error => {
-                console.error(error);
-            });
+        const counterFilePath = 'https://api.github.com/repos/anas-aldolimi/SwearCounter/contents/counter.txt';
+        const accessToken = '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';
+
+        function readCounterValue(callback) {
+            fetch(counterFilePath)
+                .then(response => response.json())
+                .then(data => {
+                    const counterValue = parseInt(atob(data.content)) || 0;
+                    callback(counterValue);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         }
 
-        function setCounterValue(counterId, counterValue) {
-            return fetch(`https://api.github.com/repos/anas-aldolimi/SwearCounter/issues/${counterId}/comments`, {
-                method: "POST",
+        function writeCounterValue(counterValue) {
+            const updatedContent = btoa(counterValue.toString());
+
+            fetch(counterFilePath, {
+                method: 'PUT',
                 headers: {
-                    Accept: "application/vnd.github.v3+json",
-                    Authorization: "token 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",
-                    "Content-Type": "application/json"
+                    Authorization: `Bearer ${accessToken}`,
+                    Accept: 'application/vnd.github.v3+json'
                 },
-                body: JSON.stringify({ body: counterValue })
+                body: JSON.stringify({
+                    message: 'Update counter value',
+                    content: updatedContent,
+                    sha: ''
+                })
             })
-            .then(response => {
-                if (response.ok) {
-                    console.log("Counter value updated successfully");
-                } else {
-                    throw new Error("Error: " + response.status);
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
+                .then(() => {
+                    console.log('Counter value updated successfully');
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         }
 
         function incrementCounter(counterId) {
-            getCounterValue(counterId)
-                .then(counterValue => {
-                    var updatedCounterValue = counterValue + 1;
-                    return setCounterValue(counterId, updatedCounterValue)
-                        .then(() => {
-                            return updatedCounterValue; // Pass the updated counter value to the next .then()
-                        });
-                })
-                .then(updatedCounterValue => {
-                    document.getElementById("counter" + counterId).innerHTML = updatedCounterValue;
-                });
+            readCounterValue(counterValue => {
+                const updatedCounterValue = counterValue + 1;
+                writeCounterValue(updatedCounterValue);
+                document.getElementById(`counter${counterId}`).innerHTML = updatedCounterValue;
+            });
         }
 
         function decrementCounter(counterId) {
-            getCounterValue(counterId)
-                .then(counterValue => {
-                    if (counterValue > 0) {
-                        var updatedCounterValue = counterValue - 1;
-                        return setCounterValue(counterId, updatedCounterValue)
-                            .then(() => {
-                                return updatedCounterValue; // Pass the updated counter value to the next .then()
-                            });
-                    }
-                })
-                .then(updatedCounterValue => {
-                    document.getElementById("counter" + counterId).innerHTML = updatedCounterValue;
-                });
+            readCounterValue(counterValue => {
+                if (counterValue > 0) {
+                    const updatedCounterValue = counterValue - 1;
+                    writeCounterValue(updatedCounterValue);
+                    document.getElementById(`counter${counterId}`).innerHTML = updatedCounterValue;
+                }
+            });
         }
 
-        getCounterValue(1)
-            .then(counterValue => {
-                document.getElementById("counter1").innerHTML = counterValue;
-            });
+        readCounterValue(counterValue => {
+            document.getElementById('counter1').innerHTML = counterValue;
+        });
 
-        getCounterValue(2)
-            .then(counterValue => {
-                document.getElementById("counter2").innerHTML = counterValue;
-            });
+        readCounterValue(counterValue => {
+            document.getElementById('counter2').innerHTML = counterValue;
+        });
     </script>
 </body>
 </html>
