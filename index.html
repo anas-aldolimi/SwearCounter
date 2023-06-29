@@ -29,67 +29,82 @@
     </div>
 
     <script>
-        function getCounterValue(counterId, callback) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "https://api.github.com/repos/anas-aldolimi/SwearCounter/issues/" + counterId, true);
-            xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
-
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    var counterValue = response.comments;
-                    callback(counterValue);
-                } else {
-                    console.error("Error: " + xhr.status);
+        function getCounterValue(counterId) {
+            return fetch(`https://api.github.com/repos/anas-aldolimi/SwearCounter/issues/${counterId}`, {
+                headers: {
+                    Accept: "application/vnd.github.v3+json"
                 }
-            };
-
-            xhr.send();
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Error: " + response.status);
+                }
+            })
+            .then(data => {
+                return data.comments;
+            })
+            .catch(error => {
+                console.error(error);
+            });
         }
 
         function setCounterValue(counterId, counterValue) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "https://api.github.com/repos/anas-aldolimi/SwearCounter/issues/" + counterId + "/comments", true);
-            xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
-            xhr.setRequestHeader("Authorization", "token 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");
-            xhr.setRequestHeader("Content-Type", "application/json");
-
-            xhr.onload = function() {
-                if (xhr.status === 201) {
+            return fetch(`https://api.github.com/repos/anas-aldolimi/SwearCounter/issues/${counterId}/comments`, {
+                method: "POST",
+                headers: {
+                    Accept: "application/vnd.github.v3+json",
+                    Authorization: "token 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",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ body: counterValue })
+            })
+            .then(response => {
+                if (response.ok) {
                     console.log("Counter value updated successfully");
                 } else {
-                    console.error("Error: " + xhr.status);
+                    throw new Error("Error: " + response.status);
                 }
-            };
-
-            var data = JSON.stringify({ body: counterValue });
-            xhr.send(data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
         }
 
         function incrementCounter(counterId) {
-            getCounterValue(counterId, function(counterValue) {
-                var updatedCounterValue = counterValue + 1;
-                setCounterValue(counterId, updatedCounterValue);
-                document.getElementById("counter" + counterId).innerHTML = updatedCounterValue;
-            });
+            getCounterValue(counterId)
+                .then(counterValue => {
+                    var updatedCounterValue = counterValue + 1;
+                    return setCounterValue(counterId, updatedCounterValue);
+                })
+                .then(() => {
+                    document.getElementById("counter" + counterId).innerHTML = updatedCounterValue;
+                });
         }
 
         function decrementCounter(counterId) {
-            getCounterValue(counterId, function(counterValue) {
-                if (counterValue > 0) {
-                    var updatedCounterValue = counterValue - 1;
-                    setCounterValue(counterId, updatedCounterValue);
+            getCounterValue(counterId)
+                .then(counterValue => {
+                    if (counterValue > 0) {
+                        var updatedCounterValue = counterValue - 1;
+                        return setCounterValue(counterId, updatedCounterValue);
+                    }
+                })
+                .then(() => {
                     document.getElementById("counter" + counterId).innerHTML = updatedCounterValue;
-                }
-            });
+                });
         }
 
-        getCounterValue(1, function(counterValue) {
-            document.getElementById("counter1").innerHTML = counterValue;
-        });
-        getCounterValue(2, function(counterValue) {
-            document.getElementById("counter2").innerHTML = counterValue;
-        });
+        getCounterValue(1)
+            .then(counterValue => {
+                document.getElementById("counter1").innerHTML = counterValue;
+            });
+
+        getCounterValue(2)
+            .then(counterValue => {
+                document.getElementById("counter2").innerHTML = counterValue;
+            });
     </script>
 </body>
 </html>
