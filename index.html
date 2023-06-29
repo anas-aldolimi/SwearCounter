@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Button Counter</title>
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 100px;
+        }
+        .button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+        .counter {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="counter" id="counter1">0</div>
+        <button class="button" onclick="incrementCounter(1)">Add one to Hittori</button>
+        <button class="button" onclick="decrementCounter(1)">Subtract one from Hittori</button>
+        <div class="counter" id="counter2">0</div>
+        <button class="button" onclick="incrementCounter(2)">Add one to Aldo</button>
+        <button class="button" onclick="decrementCounter(2)">Subtract one from Aldo</button>
+    </div>
+
+    <script>
+        // Retrieve counter values from localStorage (if available)
+        var counter1 = localStorage.getItem("counter1");
+        var counter2 = localStorage.getItem("counter2");
+
+        // Update counters with stored values
+        document.getElementById("counter1").innerHTML = counter1 || 0;
+        document.getElementById("counter2").innerHTML = counter2 || 0;
+
+        function incrementCounter(counterId) {
+            var counterElement = document.getElementById("counter" + counterId);
+            var count = parseInt(counterElement.innerHTML);
+            count += 1;
+            counterElement.innerHTML = count;
+
+            // Store the updated counter value in localStorage
+            localStorage.setItem("counter" + counterId, count);
+        }
+
+        function decrementCounter(counterId) {
+            var counterElement = document.getElementById("counter" + counterId);
+            var count = parseInt(counterElement.innerHTML);
+
+            // Ensure the counter doesn't go below zero
+            if (count > 0) {
+                count -= 1;
+                counterElement.innerHTML = count;
+
+                // Store the updated counter value in localStorage
+                localStorage.setItem("counter" + counterId, count);
+            }
+        }
+    </script>
+</body>
+</html>
