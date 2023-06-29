@@ -29,7 +29,7 @@
     </div>
 
     <script>
-        function getCounterValue(counterId) {
+        function getCounterValue(counterId, callback) {
             var xhr = new XMLHttpRequest();
             xhr.open("GET", "https://api.github.com/repos/anas-aldolimi/SwearCounter/issues/" + counterId, true);
             xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
@@ -38,7 +38,7 @@
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
                     var counterValue = response.comments;
-                    document.getElementById("counter" + counterId).innerHTML = counterValue;
+                    callback(counterValue);
                 } else {
                     console.error("Error: " + xhr.status);
                 }
@@ -84,8 +84,12 @@
             });
         }
 
-        getCounterValue(1);
-        getCounterValue(2);
+        getCounterValue(1, function(counterValue) {
+            document.getElementById("counter1").innerHTML = counterValue;
+        });
+        getCounterValue(2, function(counterValue) {
+            document.getElementById("counter2").innerHTML = counterValue;
+        });
     </script>
 </body>
 </html>
