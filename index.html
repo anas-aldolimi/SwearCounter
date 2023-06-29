@@ -76,9 +76,12 @@
             getCounterValue(counterId)
                 .then(counterValue => {
                     var updatedCounterValue = counterValue + 1;
-                    return setCounterValue(counterId, updatedCounterValue);
+                    return setCounterValue(counterId, updatedCounterValue)
+                        .then(() => {
+                            return updatedCounterValue; // Pass the updated counter value to the next .then()
+                        });
                 })
-                .then(() => {
+                .then(updatedCounterValue => {
                     document.getElementById("counter" + counterId).innerHTML = updatedCounterValue;
                 });
         }
@@ -88,10 +91,13 @@
                 .then(counterValue => {
                     if (counterValue > 0) {
                         var updatedCounterValue = counterValue - 1;
-                        return setCounterValue(counterId, updatedCounterValue);
+                        return setCounterValue(counterId, updatedCounterValue)
+                            .then(() => {
+                                return updatedCounterValue; 
+                            });
                     }
                 })
-                .then(() => {
+                .then(updatedCounterValue => {
                     document.getElementById("counter" + counterId).innerHTML = updatedCounterValue;
                 });
         }
