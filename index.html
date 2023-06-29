@@ -43,7 +43,7 @@
                 }
             })
             .then(data => {
-                return data.comments;
+                return parseInt(data.comments); // Parse the counter value as an integer
             })
             .catch(error => {
                 console.error(error);
@@ -93,7 +93,7 @@
                         var updatedCounterValue = counterValue - 1;
                         return setCounterValue(counterId, updatedCounterValue)
                             .then(() => {
-                                return updatedCounterValue; 
+                                return updatedCounterValue; // Pass the updated counter value to the next .then()
                             });
                     }
                 })
