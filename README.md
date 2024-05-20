@@ -1,1 +1,1 @@
-# SwearCounter
+# SimpleCounter
